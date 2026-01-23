@@ -1,15 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DbMenagment;
 using DbMenagment.Models;
+using Microsoft.AspNetCore.Mvc;
+
 
 namespace ShortUrl.Controllers
 {
     public class UrlController : Controller
     {
-        public UrlController()
+        private readonly ILogger<HomeController> _logger;
+        private AppDbContext _appDbContext;
+
+        public UrlController( AppDbContext appDbContext)
         {
-                
+            
+            _appDbContext = appDbContext;
         }
-        
+
 
         public IActionResult Index()
         {
@@ -34,6 +40,14 @@ namespace ShortUrl.Controllers
 
             
             return View(allData);
+        }
+        public IActionResult Remove(int id, int userId) 
+        {
+            var url = _appDbContext.Urls.FirstOrDefault(n => n.Id == id);
+            _appDbContext.Urls.Remove(url);
+            _appDbContext.SaveChanges();
+
+            return RedirectToAction("Index");
         }
     }
 }
