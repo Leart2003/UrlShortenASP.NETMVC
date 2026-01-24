@@ -1,4 +1,4 @@
-﻿
+﻿@model List<User>
 
 @{
     ViewData["Title"] = "All users";
@@ -13,7 +13,7 @@
             <div class="col">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title"></h5>
+                        <h5 class="card-title">@user.</h5>
                         <p class="card-text">This user has created link(s) and has a total of.</p>
 
                         <p class="d-inline-flex gap-1">

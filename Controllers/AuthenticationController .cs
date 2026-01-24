@@ -1,13 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ShortUrl.Data.ViewModel;
-
+using DbMenagment;
+using Microsoft.EntityFrameworkCore;
 namespace ShortUrl.Controllers
 {
     public class Authentication : Controller
     {
-        public IActionResult Index()
+        private AppDbContext _appDbContext;
+        public Authentication(AppDbContext appDbContext)
         {
-            return View();
+            _appDbContext = appDbContext;
+        }
+        public IActionResult Users()
+        {
+             var user = _appDbContext
+                .Users
+                .Include(n => n.Urls)
+                .ToList();
+            return View(user);
         }
 
         public IActionResult Login()
