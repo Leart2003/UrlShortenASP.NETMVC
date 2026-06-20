@@ -1,6 +1,8 @@
 ﻿using DbMenagment;
 using DbMenagment.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ShortUrl.Data.ViewModel;
 
 
 namespace ShortUrl.Controllers
@@ -19,27 +21,30 @@ namespace ShortUrl.Controllers
 
         public IActionResult Index()
         {
+            var allUrls = _appDbContext.Urls
+                .Include(n => n.User)
+                .Select(url => new GetUrl()
+            
+                {
+                Id = url.Id,
+                OriginalLink = url.OriginalLink,
+                ShortLink = url.ShortLink,
+                ClickedTime = url.ClickedTime,
+                UserID = url.User.Id,
+                User = new GetUserVM() 
+                {
+                    Id = url.User.Id,
+                    FullName = url.User.email,
+                }
 
-            Url urlDb = new Url()
-            {
-                Id = 1,
-                OriginalLink = "https://www.google.com",
-                ShortLink = "SHrotl",
-                ClickedTime = 1,
-                UserID = 1
 
 
+            }).ToList();
 
-            };
-
-            var allData = new List<Url>();
-            allData.Add(urlDb);
-
-            ViewData["ShortenedURL"] = "This is just short Url";
-            ViewData["AllUrls"] = new List<string>() {"url 1", "Url2"};
+        
 
             
-            return View(allData);
+            return View(allUrls);
         }
         public IActionResult Remove(int id, int userId) 
         {

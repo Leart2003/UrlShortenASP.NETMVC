@@ -14,5 +14,8 @@
         public int ClickedTime { get; set; }
 
         public int UserID { get; set; }
+
+
+        public GetUserVM User { get; set; }
     }
 }

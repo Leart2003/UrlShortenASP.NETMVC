@@ -1,4 +1,4 @@
-﻿@model List<User>
+﻿@model List<User>;
 
 @{
     ViewData["Title"] = "All users";
@@ -13,8 +13,8 @@
             <div class="col">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">@user.</h5>
-                        <p class="card-text">This user has created link(s) and has a total of.</p>
+                        <h5 class="card-title">@user.email</h5>
+                        <p class="card-text">This @user.Urls.Count has created link(s) and has a total of @user.Urls.Sum(n => n.ClickedTime).</p>
 
                         <p class="d-inline-flex gap-1">
                             <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
@@ -31,9 +31,19 @@
                                             <th>Number of clicks</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    @foreach (var userUrl in @user.Urls)
+                                    {
 
-                                    </tbody>
+                                        <tbody>
+                                            <tr>
+                                                <td>@userUrl.OriginalLink</td>
+                                                <td>@userUrl.ShortLink</td>
+                                                <td>@userUrl.ClickedTime</td>
+                                            </tr>
+
+                                        </tbody>
+                                    }
+
                                 </table>
                             </div>
                         </div>
@@ -41,7 +51,7 @@
                     </div>
                     <div class="card-footer">
                         <small class="text-muted">
-                            
+                            This @user.Urls.Count has created link(s) and has a total of @user.Urls.Sum(n => n.ClickedTime)
                         </small>
                     </div>
                 </div>
