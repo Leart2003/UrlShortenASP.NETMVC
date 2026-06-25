@@ -1,4 +1,6 @@
-﻿using DbMenagment;
+﻿using AutoMapper;
+using DbMenagment;
+using DbMenagment.Interfaces;
 using DbMenagment.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,48 +11,29 @@ namespace ShortUrl.Controllers
 {
     public class UrlController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private AppDbContext _appDbContext;
 
-        public UrlController( AppDbContext appDbContext)
+        private readonly IUrlService _urlService;
+        private readonly IMapper _mapper;
+
+        public UrlController(IUrlService urlService, IMapper mapper)
         {
             
-            _appDbContext = appDbContext;
+        _urlService = urlService;
+            _mapper = mapper;
         }
 
 
         public IActionResult Index()
         {
-            var allUrls = _appDbContext.Urls
-                .Include(n => n.User)
-                .Select(url => new GetUrl()
-            
-                {
-                Id = url.Id,
-                OriginalLink = url.OriginalLink,
-                ShortLink = url.ShortLink,
-                ClickedTime = url.ClickedTime,
-                UserID = url.User.Id,
-                User = new GetUserVM() 
-                {
-                    Id = url.User.Id,
-                    FullName = url.User.email,
-                }
-
-
-
-            }).ToList();
-
-        
+            var allUrls = _urlService.GetUrl();
+            var mappUrl = _mapper.Map<List<Url>,List<GetUrl>>(allUrls);
 
             
-            return View(allUrls);
+            return View(mappUrl);
         }
-        public IActionResult Remove(int id, int userId) 
+        public IActionResult Remove(int id) 
         {
-            var url = _appDbContext.Urls.FirstOrDefault(n => n.Id == id);
-            _appDbContext.Urls.Remove(url);
-            _appDbContext.SaveChanges();
+         _urlService.Remove(id);
 
             return RedirectToAction("Index");
         }

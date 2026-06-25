@@ -2,31 +2,29 @@
 using ShortUrl.Data.ViewModel;
 using DbMenagment;
 using Microsoft.EntityFrameworkCore;
+using DbMenagment.Interfaces;
 namespace ShortUrl.Controllers
 {
     public class Authentication : Controller
     {
-        private AppDbContext _appDbContext;
-        public Authentication(AppDbContext appDbContext)
+        private IUserInterface _userService;
+        public Authentication(IUserInterface userService)
         {
-            _appDbContext = appDbContext;
+            _userService = userService;
         }
-        public IActionResult Users()
+        public async Task< IActionResult> Users()
         {
-             var user = _appDbContext
-                .Users
-                .Include(n => n.Urls)
-                .ToList();
-            return View(user);
+             var users = await _userService.GetUsersAsync();
+            return View(users);
         }
 
-        public IActionResult Login()
+        public async Task<IActionResult> Login()
         {
          
             return View(new LoginVm());
         }
         [HttpPost]
-        public IActionResult LoginSubmit(LoginVm model)
+        public async Task<IActionResult> LoginSubmit(LoginVm model)
         {
 
             if (!ModelState.IsValid)
@@ -37,12 +35,12 @@ namespace ShortUrl.Controllers
 
          
         }
-        public IActionResult Register(RegisterVM registerVM)
+        public async Task< IActionResult> Register(RegisterVM registerVM)
         {
 
             return View();
         }   
-        public IActionResult RegisterUser(RegisterVM registerVM) {
+        public async Task< IActionResult>RegisterUser(RegisterVM registerVM) {
 
 
             return RedirectToAction("Index","Home");

@@ -1,5 +1,8 @@
 using DbMenagment;
+using DbMenagment.Interfaces;
+using DbMenagment.Services;
 using Microsoft.EntityFrameworkCore;
+using ShortUrl.Data.Mapper;
 using System;
 
 namespace ShortUrl
@@ -19,6 +22,10 @@ namespace ShortUrl
 
 
 
+            builder.Services.AddScoped<IUrlService, UrlService>();
+            builder.Services.AddScoped<IUserInterface, UserService>();
+            builder.Services.AddAutoMapper(cfg => { },
+    AppDomain.CurrentDomain.GetAssemblies());
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
