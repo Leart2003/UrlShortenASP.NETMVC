@@ -33,13 +33,25 @@
                         
                     </ul>
                 </div>
-                <a  href="/Authentication/Login"  class="btn btn-outline-success my-2 my-sm-0 btn-login">
-                    Login
-                </a>
-                <span style="padding: 5px;"></span>
-                <a class="btn btn-outline-primary my-2 my-sm-0 btn-register" asp-controller="Authentication" asp-action="Register">
-                    Register
-                </a>
+                @if (!User.Identity.IsAuthenticated)
+                    {
+                    <a href="/Authentication/Login" class="btn btn-outline-success my-2 my-sm-0 btn-login">
+                        Login
+                    </a>
+                    <span style="padding: 5px;"></span>
+                    <a class="btn btn-outline-primary my-2 my-sm-0 btn-register" asp-controller="Authentication" asp-action="Register">
+                        Register
+                    </a>
+                    }
+                    else
+                    {
+                        <form asp-controller="Authentication" asp-action="Logout">
+                            <button class="btn btn-outline-danger my-2 my-sm-o">
+                                <i class="bi bi-box-arrow-in-right">Logout<bi>@User.Identity.Name</bi> </i>
+                            </button>
+                        </form>
+                    }
+
             </div>
         </nav>
     </header>

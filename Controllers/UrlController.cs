@@ -23,19 +23,26 @@ namespace ShortUrl.Controllers
         }
 
 
-        public IActionResult Index()
+        public async Task< IActionResult> Index()
         {
-            var allUrls = _urlService.GetUrl();
+            var allUrls = await _urlService.GetUrlAsync();
             var mappUrl = _mapper.Map<List<Url>,List<GetUrl>>(allUrls);
 
             
             return View(mappUrl);
         }
-        public IActionResult Remove(int id) 
+        public async Task<IActionResult> Remove(int id) 
         {
-         _urlService.Remove(id);
+         await _urlService.RemoveAsync(id);
 
             return RedirectToAction("Index");
+        }
+        public async Task<IActionResult> Create(int id)
+        {
+       
+
+            return RedirectToAction("Index");
+
         }
     }
 }

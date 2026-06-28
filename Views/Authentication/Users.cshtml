@@ -1,4 +1,4 @@
-﻿@model List<User>;
+﻿@model List<AppUser>;
 
 @{
     ViewData["Title"] = "All users";
@@ -13,7 +13,7 @@
             <div class="col">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">@user.email</h5>
+                        <h5 class="card-title">@user.FullName</h5>
                         <p class="card-text">This @user.Urls.Count has created link(s) and has a total of @user.Urls.Sum(n => n.ClickedTime).</p>
 
                         <p class="d-inline-flex gap-1">

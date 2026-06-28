@@ -9,7 +9,7 @@ namespace ShortUrl.Data.Mapper
         public AutoMapperProfile()
         {
             CreateMap<Url, GetUrl>().ReverseMap();
-            CreateMap<User, GetUserVM>().ReverseMap();
+            CreateMap<AppUser, GetUserVM>().ReverseMap();
         }
     }
 }
