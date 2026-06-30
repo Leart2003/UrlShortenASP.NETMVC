@@ -2,6 +2,7 @@
 using DbMenagment;
 using DbMenagment.Interfaces;
 using DbMenagment.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShortUrl.Data.ViewModel;
@@ -22,7 +23,7 @@ namespace ShortUrl.Controllers
             _mapper = mapper;
         }
 
-
+        [Authorize(Roles ="Admin")]
         public async Task< IActionResult> Index()
         {
             var allUrls = await _urlService.GetUrlAsync();

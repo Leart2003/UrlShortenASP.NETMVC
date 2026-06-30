@@ -12,7 +12,7 @@ namespace ShortUrl
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public async static Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -45,10 +45,11 @@ namespace ShortUrl
                 options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequiredLength = 8;
-
-
+             
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
             });
-
+        
             builder.Services.AddScoped<IUrlService, UrlService>();
             builder.Services.AddScoped<IUserInterface, UserService>();
             builder.Services.AddAutoMapper(cfg => { },
@@ -62,6 +63,7 @@ namespace ShortUrl
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
 
             app.UseHttpsRedirection();
             app.UseRouting();
@@ -78,6 +80,21 @@ namespace ShortUrl
                 pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
 
+            
+            using (var scope = app.Services.CreateScope())
+            {
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+                string[] roles = { "User", "Admin" }; // add all roles you need
+
+                foreach (var role in roles)
+                {
+                    if (!await roleManager.RoleExistsAsync(role))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(role));
+                    }
+                }
+            }
             app.Run();
         }
     }

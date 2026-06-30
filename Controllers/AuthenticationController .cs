@@ -6,6 +6,7 @@ using DbMenagment.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using DbMenagment.Models;
 using Shortly.Redirect.Helpers.Roles;
+using Microsoft.AspNetCore.Authorization;
 namespace ShortUrl.Controllers
 {
     public class Authentication : Controller
@@ -20,6 +21,7 @@ namespace ShortUrl.Controllers
             _signInManager = signInManager;
             _userManger = userManager;
         }
+        [Authorize(Roles ="Admin")]
         public async Task< IActionResult> Users()
         {
              var users = await _userService.GetUsersAsync();
