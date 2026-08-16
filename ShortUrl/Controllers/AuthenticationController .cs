@@ -193,43 +193,7 @@ namespace ShortUrl.Controllers
             ModelState.AddModelError("", $"EmailAdress{confirmEmailLoginVm.EmailAddress} does not exist");
             return View("EmailConfirmation", confirmEmailLoginVm);
         }
-        public async Task<IActionResult> EmailConfirmationVerified(string userId, string userConfirmationToken)
-        {
-            var user = await _userManger.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                return RedirectToAction("Index", "Home");
-
-            }
-            var result = await _userManger.ConfirmEmailAsync(user, userConfirmationToken);
-            TempData["EmailConfirmationVerified"] = "Thank you , your account has been verified";
-            return RedirectToAction("Index", "Home");
-        }
-        public async Task<IActionResult> TwoFactorConfirmation(string loggedUserId)
-        {
-            var user = await _userManger.FindByIdAsync(loggedUserId);
-
-            if (user != null)
-            {
-                var userToken = await _userManger.GenerateTwoFactorTokenAsync(user, "Phone");
-
-                string twilioPhoneNumber = _configuration["Twilio:PhoneNumber"];
-                string SID = _configuration["Twilio:SID"];
-                string twilioToken = _configuration["Twilio:Token"];
-                TwilioClient.Init(SID, twilioToken);
-                var message = MessageResource.Create(
-                body: $"This is your verification code: {userToken}",
-     from: new Twilio.Types.PhoneNumber(twilioPhoneNumber),
-     to: new Twilio.Types.PhoneNumber(user.PhoneNumber)
- );
-                var confirm2FALoginVM = new Confirm2FALoginVm() { UserId = loggedUserId };
-                return View(confirm2FALoginVM);
-            }
-
-            return RedirectToAction("Index", "Home");
-        }
-   
+       
 
 
     }
