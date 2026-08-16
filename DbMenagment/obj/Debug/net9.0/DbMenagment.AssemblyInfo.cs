@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DbMenagment")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+57e3021e196053c7d211e116c9dde2a123533458")]
 [assembly: System.Reflection.AssemblyProductAttribute("DbMenagment")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DbMenagment")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

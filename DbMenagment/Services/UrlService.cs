@@ -21,8 +21,8 @@ namespace DbMenagment.Services
 
         public async Task<Url> AddAsync(Url url)
         {
-           await  _context.AddAsync(url);     
-          await  _context.SaveChangesAsync();
+            await _context.AddAsync(url);
+            await _context.SaveChangesAsync();
 
             return url;
         }
@@ -34,7 +34,7 @@ namespace DbMenagment.Services
             return url;
         }
 
-     
+
 
         public async Task<List<Url>> GetUrlAsync(string userId, bool isAdmin)
         {
@@ -50,51 +50,48 @@ namespace DbMenagment.Services
                 return await allUrlQuery.Where(n => n.UserID == userId).ToListAsync();
             }
 
-           
+
         }
 
-       
+
 
         public async Task RemoveAsync(int id)
         {
-            var urls = _context.Urls.FirstOrDefault(n => n.Id == id);
+            var urls = await _context.Urls.FirstOrDefaultAsync(n => n.Id == id);
             if (urls is not null)
             {
                 _context.Remove(urls);
                 await _context.SaveChangesAsync();
             }
-            
         }
 
         public async Task<Url> UpdateAsync(int id, Url url)
         {
-            var urls = await  _context.Urls.FirstOrDefaultAsync(n => n.Id == id);
+            var urls = await _context.Urls.FirstOrDefaultAsync(n => n.Id == id);
             if (urls is not null)
             {
                 urls.OriginalLink = url.OriginalLink;
                 urls.ShortLink = url.ShortLink;
-                urls.CreationDate = DateTime.UtcNow;  
+                urls.CreationDate = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
 
             return urls;
-                
         }
         public async Task incrementClicks(int shortUrlId)
         {
-            var dbUrl = _context.Urls
-                      .FirstOrDefault(n => n.Id == shortUrlId);
+            var dbUrl = await _context.Urls.FirstOrDefaultAsync(n => n.Id == shortUrlId);
+            if (dbUrl == null)
+            {
+                return;
+            }
 
             dbUrl.ClickedTime++;
-
             await _context.SaveChangesAsync();
-
         }
         public async Task<Url> GetOriginalUrl(string shortUrl)
         {
-            var dbUrl = _context.Urls
-                .FirstOrDefault(n => n.ShortLink == shortUrl);
-
+            var dbUrl = await _context.Urls.FirstOrDefaultAsync(n => n.ShortLink == shortUrl);
             return dbUrl;
         }
     }

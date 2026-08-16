@@ -9,23 +9,26 @@
         <h4 class="form-header">2FA your account </h4>
         <div class="row">
             <div class="col-md-8 offset-md-2">
-                <form asp-controller="Authentication" asp-action="TwoFactorConfirm" method="post">
+                <form asp-controller="Authentication" asp-action="TwoFactorConfirmationVerified" method="post">
+                    @Html.AntiForgeryToken()
                     <div asp-validation-summary="All" class="text-danger"></div>
                     <input asp-for="UserId" hidden />
                     <div class="form-group mb-3">
                         <label for="TwoFactorAuthentication">Verification code</label>
-                        <input asp-for="userConfirmationCode" class="form-control" placeholder="Enter email" id="TwoFactorAuthentication" />
-                        <small class="form-text text-muted" id="TwoFactorAuthentication">Dont this code with anyone</small> <br />
-                        
-                    </div>
-                    
-                    <button type="submit" class="btn btn-outline-success mt-2 btn-login">
-                     Confirm code
-                    </button>
-                </form>
+                        <input asp-for="userConfirmationCode" class="form-control" placeholder="Enter verification code"
+                               id="TwoFactorAuthentication" />
+                        <small class="form-text text-muted" id="TwoFactorAuthentication">Don't share this code with
+                            anyone.</small> <br />
+                            <span asp-validation-for="userConfirmationCode" class="text-danger"></span>
+                        </div>
 
+                        <button type="submit" class="btn btn-outline-success mt-2 btn-login">
+                            Confirm code
+                        </button>
+                    </form>
+
+                </div>
             </div>
         </div>
-    </div>
 
-</div>
+    </div>

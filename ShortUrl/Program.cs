@@ -51,7 +51,7 @@ namespace ShortUrl
 
                 options.SignIn.RequireConfirmedEmail = true;
             });
-        
+
             builder.Services.AddScoped<IUrlService, UrlService>();
             builder.Services.AddScoped<IUserInterface, UserService>();
             builder.Services.AddAutoMapper(cfg => { },
@@ -70,19 +70,16 @@ namespace ShortUrl
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{userIDd}/{linkId}")
-                .WithStaticAssets();
-            app.MapControllerRoute(
-                name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
 
-            
+
             using (var scope = app.Services.CreateScope())
             {
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();

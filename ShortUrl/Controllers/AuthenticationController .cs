@@ -31,19 +31,20 @@ namespace ShortUrl.Controllers
             _userManger = userManager;
             _configuration = configuration;
         }
-        [Authorize(Roles ="Admin")]
-        public async Task< IActionResult> Users()
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Users()
         {
-             var users = await _userService.GetUsersAsync();
+            var users = await _userService.GetUsersAsync();
             return View(users);
         }
 
         public async Task<IActionResult> Login()
         {
-         
+
             return View(new LoginVm());
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> LoginSubmitted(LoginVm loginVM)
         {
             if (!ModelState.IsValid)
@@ -52,50 +53,48 @@ namespace ShortUrl.Controllers
             }
 
             var user = await _userManger.FindByEmailAsync(loginVM.EmailAddress);
-            if (user != null)
+            if (user == null)
             {
-                var userPasswordCheck = await _userManger.CheckPasswordAsync(user, loginVM.Password);
-                if (userPasswordCheck)
+                ModelState.AddModelError("", "Invalid login attempt. Please, check your username and password");
+                return View("Login", loginVM);
+            }
+
+            var userPasswordCheck = await _userManger.CheckPasswordAsync(user, loginVM.Password);
+            if (userPasswordCheck)
+            {
+                var userLoggedIn = await _signInManager.PasswordSignInAsync(user, loginVM.Password, false, false);
+
+                if (userLoggedIn.Succeeded)
                 {
-                    var userLoggedIn = await _signInManager.PasswordSignInAsync(user, loginVM.Password, false, false);
-
-                    if (userLoggedIn.Succeeded)
-                    {
-                        return RedirectToAction("Index", "Home");
-                    }
-                    else if (userLoggedIn.IsNotAllowed)
-                    {
-                        return RedirectToAction("EmailConfirmation");
-                    }
-                  
-                    else if (userLoggedIn.RequiresTwoFactor)
-                    {
-                        return RedirectToAction("TwoFactorConfirmation", new { loggedInUserId = user.Id });
-                    }
-
-                    else
-                    {
-                        ModelState.AddModelError("", "Invalid login attempt. Please, check your username and password");
-                        return View("Login", loginVM);
-                    }
+                    return RedirectToAction("Index", "Home");
+                }
+                else if (userLoggedIn.IsNotAllowed)
+                {
+                    return RedirectToAction("EmailConfirmation");
+                }
+                else if (userLoggedIn.RequiresTwoFactor)
+                {
+                    return RedirectToAction("TwoFactorConfirmation", new { loggedInUserId = user.Id });
                 }
                 else
                 {
-                    await _userManger.AccessFailedAsync(user);
-
-                    if (await _userManger.IsLockedOutAsync(user))
-                    {
-                        ModelState.AddModelError("", "Your account is locked, please try again in 10 mins");
-                        return View("Login", loginVM);
-                    }
-
                     ModelState.AddModelError("", "Invalid login attempt. Please, check your username and password");
                     return View("Login", loginVM);
                 }
             }
+            else
+            {
+                await _userManger.AccessFailedAsync(user);
 
+                if (await _userManger.IsLockedOutAsync(user))
+                {
+                    ModelState.AddModelError("", "Your account is locked, please try again in 10 mins");
+                    return View("Login", loginVM);
+                }
 
-            return RedirectToAction("Index", "Home");
+                ModelState.AddModelError("", "Invalid login attempt. Please, check your username and password");
+                return View("Login", loginVM);
+            }
         }
 
         public async Task<IActionResult> Register()
@@ -109,7 +108,10 @@ namespace ShortUrl.Controllers
 
         //    return View();
         //}   
-        public async Task< IActionResult>RegisterUser(RegisterVM registerVM) {
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RegisterUser(RegisterVM registerVM)
+        {
 
             if (!ModelState.IsValid)
             {
@@ -123,7 +125,7 @@ namespace ShortUrl.Controllers
 
                 return View("Register", registerVM);
             }
-            
+
 
             var newUser = new AppUser()
             {
@@ -146,14 +148,14 @@ namespace ShortUrl.Controllers
                     return View("Register", registerVM);
                 }
             }
-            return RedirectToAction("Index","Home");
-        
-         }
+            return RedirectToAction("Index", "Home");
+
+        }
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
 
-            return RedirectToAction();
+            return RedirectToAction("Index", "Home");
         }
         public async Task<IActionResult> EmailConfirmation()
         {
@@ -161,6 +163,8 @@ namespace ShortUrl.Controllers
             return View(confirmEmail);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SendEmailConfirmation(ConfirmEmailLoginVm confirmEmailLoginVm)
         {
             var user = await _userManger.FindByEmailAsync(confirmEmailLoginVm.EmailAddress);
@@ -168,28 +172,28 @@ namespace ShortUrl.Controllers
             if (user != null)
             {
                 var userToken = await _userManger.GenerateEmailConfirmationTokenAsync(user);
-                var userConfirmationLink = Url.Action("EmailConfirmationVerified", "Authentication", new { userId=user.Id, userConfirmationToken =userToken},Request.Scheme);
+                var userConfirmationLink = Url.Action("EmailConfirmationVerified", "Authentication", new { userId = user.Id, userConfirmationToken = userToken }, Request.Scheme);
 
                 var apiKey = _configuration["SendGrid: ShortUrl"];
                 var sendGridClient = new SendGridClient(apiKey);
 
-                var fromEmailAdress = new EmailAddress(_configuration["SendGrid:FromAddress"],"Shortly client app");
+                var fromEmailAdress = new EmailAddress(_configuration["SendGrid:FromAddress"], "Shortly client app");
                 var subject = "Verify your account";
                 var toEmailAdress = new EmailAddress(confirmEmailLoginVm.EmailAddress);
-                var emailContextText = $"Hello From shortUrl.Please, click the link to verify your account: {userConfirmationLink}" ;
-                var emailConentHTML = $"Hello From shortUrl.Please, click the link to verify your account: <a href=\"{ userConfirmationLink}\">Verify your account</a>";
+                var emailContextText = $"Hello From shortUrl.Please, click the link to verify your account: {userConfirmationLink}";
+                var emailConentHTML = $"Hello From shortUrl.Please, click the link to verify your account: <a href=\"{userConfirmationLink}\">Verify your account</a>";
 
-                var emailRequest = MailHelper.CreateSingleEmail(fromEmailAdress, toEmailAdress,subject, emailContextText, emailConentHTML);
+                var emailRequest = MailHelper.CreateSingleEmail(fromEmailAdress, toEmailAdress, subject, emailContextText, emailConentHTML);
 
                 var emailResponse = sendGridClient.SendEmailAsync(emailRequest);
 
                 TempData["EmailConfirmation"] = "Thank you, check your email to verify your account";
                 return RedirectToAction("Index", "Home");
-            } 
-            ModelState.AddModelError("",$"EmailAdress{confirmEmailLoginVm.EmailAddress} does not exist");
+            }
+            ModelState.AddModelError("", $"EmailAdress{confirmEmailLoginVm.EmailAddress} does not exist");
             return View("EmailConfirmation", confirmEmailLoginVm);
         }
-        public async Task<IActionResult> EmailConfirmationVerified(string userId,string userConfirmationToken)
+        public async Task<IActionResult> EmailConfirmationVerified(string userId, string userConfirmationToken)
         {
             var user = await _userManger.FindByIdAsync(userId);
 
@@ -200,7 +204,7 @@ namespace ShortUrl.Controllers
             }
             var result = await _userManger.ConfirmEmailAsync(user, userConfirmationToken);
             TempData["EmailConfirmationVerified"] = "Thank you , your account has been verified";
-            return RedirectToAction("Index","Home");
+            return RedirectToAction("Index", "Home");
         }
         public async Task<IActionResult> TwoFactorConfirmation(string loggedUserId)
         {
@@ -223,12 +227,14 @@ namespace ShortUrl.Controllers
                 return View(confirm2FALoginVM);
             }
 
-            return RedirectToAction("Index","Home");
+            return RedirectToAction("Index", "Home");
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> TwoFactorConfirmationVerified(Confirm2FALoginVm confirm2FALoginVm)
 
         {
-            var user = await _userManger.FindByEmailAsync(confirm2FALoginVm.UserId);
+            var user = await _userManger.FindByIdAsync(confirm2FALoginVm.UserId);
 
             if (user != null)
             {
@@ -242,7 +248,7 @@ namespace ShortUrl.Controllers
                     }
                 }
             }
-            ModelState.AddModelError("","Confirmation code is not correct");
+            ModelState.AddModelError("", "Confirmation code is not correct");
             return View(confirm2FALoginVm);
         }
 

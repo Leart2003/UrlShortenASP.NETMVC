@@ -26,3 +26,4 @@ C:\Users\malok\source\repos\UrlShortenSystem\DbMenagment\obj\Debug\net9.0\refint
 C:\Users\malok\source\repos\UrlShortenSystem\DbMenagment\obj\Debug\net9.0\DbMenagment.pdb
 C:\Users\malok\source\repos\UrlShortenSystem\DbMenagment\obj\Debug\net9.0\DbMenagment.genruntimeconfig.cache
 C:\Users\malok\source\repos\UrlShortenSystem\DbMenagment\obj\Debug\net9.0\ref\DbMenagment.dll
+C:\Users\malok\source\repos\UrlShortenSystem\DbMenagment\obj\Debug\net9.0\DbMenagment.sourcelink.json

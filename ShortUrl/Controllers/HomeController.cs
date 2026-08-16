@@ -12,12 +12,12 @@ namespace ShortUrl.Controllers
     public class HomeController : Controller
     {
 
-       
+
 
         private readonly ILogger<HomeController> _logger;
         private AppDbContext _appDbContext;
 
-        public HomeController(ILogger<HomeController> logger, AppDbContext appDbContext )
+        public HomeController(ILogger<HomeController> logger, AppDbContext appDbContext)
         {
             _logger = logger;
             _appDbContext = appDbContext;
@@ -25,7 +25,7 @@ namespace ShortUrl.Controllers
 
         public IActionResult Index()
         {
-            PostUrlVm newUrl =  new PostUrlVm();
+            PostUrlVm newUrl = new PostUrlVm();
             return View(newUrl);
         }
 
@@ -39,26 +39,28 @@ namespace ShortUrl.Controllers
             return View();
         }
 
-        public IActionResult ShortenUrl(PostUrlVm postUrlVm)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ShortenUrl(PostUrlVm postUrlVm)
         {
             if (!ModelState.IsValid)
             {
                 return View("Index", postUrlVm);
-            };
+            }
+
             var loggedUserID = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            Url newUrl = new Url()
+            var newUrl = new Url()
             {
                 OriginalLink = postUrlVm.Url,
-                ShortLink = GenerateShortUrl(600),
+                ShortLink = GenerateShortUrl(8),
                 ClickedTime = 0,
-                UserID = loggedUserID, 
-                CreationDate = DateTime.Now,
-
-               
+                UserID = loggedUserID,
+                CreationDate = DateTime.UtcNow,
             };
+
             _appDbContext.Urls.Add(newUrl);
-            _appDbContext.SaveChanges();
-            TempData["Message"] = $"Your url was shorten succesfully to {newUrl.ShortLink}";
+            await _appDbContext.SaveChangesAsync();
+            TempData["Message"] = $"Your url was shortened successfully to {newUrl.ShortLink}";
             return View("Index");
         }
         private string GenerateShortUrl(int length)
