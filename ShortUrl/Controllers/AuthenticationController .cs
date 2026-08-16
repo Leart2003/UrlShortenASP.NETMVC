@@ -157,42 +157,8 @@ namespace ShortUrl.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-        public async Task<IActionResult> EmailConfirmation()
-        {
-            var confirmEmail = new ConfirmEmailLoginVm();
-            return View(confirmEmail);
-        }
+     
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SendEmailConfirmation(ConfirmEmailLoginVm confirmEmailLoginVm)
-        {
-            var user = await _userManger.FindByEmailAsync(confirmEmailLoginVm.EmailAddress);
-
-            if (user != null)
-            {
-                var userToken = await _userManger.GenerateEmailConfirmationTokenAsync(user);
-                var userConfirmationLink = Url.Action("EmailConfirmationVerified", "Authentication", new { userId = user.Id, userConfirmationToken = userToken }, Request.Scheme);
-
-                var apiKey = _configuration["SendGrid: ShortUrl"];
-                var sendGridClient = new SendGridClient(apiKey);
-
-                var fromEmailAdress = new EmailAddress(_configuration["SendGrid:FromAddress"], "Shortly client app");
-                var subject = "Verify your account";
-                var toEmailAdress = new EmailAddress(confirmEmailLoginVm.EmailAddress);
-                var emailContextText = $"Hello From shortUrl.Please, click the link to verify your account: {userConfirmationLink}";
-                var emailConentHTML = $"Hello From shortUrl.Please, click the link to verify your account: <a href=\"{userConfirmationLink}\">Verify your account</a>";
-
-                var emailRequest = MailHelper.CreateSingleEmail(fromEmailAdress, toEmailAdress, subject, emailContextText, emailConentHTML);
-
-                var emailResponse = sendGridClient.SendEmailAsync(emailRequest);
-
-                TempData["EmailConfirmation"] = "Thank you, check your email to verify your account";
-                return RedirectToAction("Index", "Home");
-            }
-            ModelState.AddModelError("", $"EmailAdress{confirmEmailLoginVm.EmailAddress} does not exist");
-            return View("EmailConfirmation", confirmEmailLoginVm);
-        }
        
 
 
