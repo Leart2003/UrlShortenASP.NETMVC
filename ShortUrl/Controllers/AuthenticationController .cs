@@ -8,13 +8,7 @@ using DbMenagment.Models;
 using Shortly.Redirect.Helpers.Roles;
 using Microsoft.AspNetCore.Authorization;
 using System.Diagnostics.Eventing.Reader;
-using SendGrid;
-using SendGrid.Helpers.Mail;
-using Twilio;
-using Twilio.TwiML.Messaging;
-using Twilio;
-using Twilio.Rest.Api.V2010.Account;
-using Twilio.Types;
+
 namespace ShortUrl.Controllers
 {
     public class Authentication : Controller
@@ -103,11 +97,7 @@ namespace ShortUrl.Controllers
         }
 
 
-        //public async Task< IActionResult> Register(RegisterVM registerVM)
-        //{
-
-        //    return View();
-        //}   
+     
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegisterUser(RegisterVM registerVM)
