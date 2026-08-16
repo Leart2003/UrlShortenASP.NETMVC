@@ -229,28 +229,7 @@ namespace ShortUrl.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> TwoFactorConfirmationVerified(Confirm2FALoginVm confirm2FALoginVm)
-
-        {
-            var user = await _userManger.FindByIdAsync(confirm2FALoginVm.UserId);
-
-            if (user != null)
-            {
-                var tokenVerification = await _userManger.VerifyTwoFactorTokenAsync(user, "Phone", confirm2FALoginVm.userConfirmationCode);
-                if (tokenVerification)
-                {
-                    var tokenSignIn = await _signInManager.TwoFactorSignInAsync("Phone", confirm2FALoginVm.userConfirmationCode, false, false);
-                    if (tokenSignIn.Succeeded)
-                    {
-                        return RedirectToAction("Index", "Home");
-                    }
-                }
-            }
-            ModelState.AddModelError("", "Confirmation code is not correct");
-            return View(confirm2FALoginVm);
-        }
+   
 
 
     }
